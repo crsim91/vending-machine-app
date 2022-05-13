@@ -11,6 +11,7 @@ import com.example.vendingmachine.model.User;
 import com.example.vendingmachine.repository.UserRepository;
 import com.example.vendingmachine.util.CoinAmountUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
@@ -41,8 +43,10 @@ public class UserServiceImpl implements UserService {
 		roleAssign(user, preparedUser);
 
 		try {
+			log.info("Creating user {}", preparedUser);
 			return userRepository.save(preparedUser);
 		} catch (DataIntegrityViolationException e) {
+			log.error("Username duplication {}", e.getMessage());
 			throw new UsernameConflictException(preparedUser.getUsername());
 		}
 	}
@@ -84,9 +88,11 @@ public class UserServiceImpl implements UserService {
 
 		try {
 			preparedUser.setId(userId);
+			log.info("Update user {}", preparedUser);
 			return userRepository.save(preparedUser);
 		} catch (DataIntegrityViolationException e) {
-			throw new ProductConflictException(preparedUser.getUsername());
+			log.error("Username duplication {}", e.getMessage());
+			throw new UsernameConflictException(preparedUser.getUsername());
 		}
 	}
 

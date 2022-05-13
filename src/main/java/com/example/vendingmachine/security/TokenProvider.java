@@ -92,6 +92,9 @@ public class TokenProvider {
 		} catch (IllegalArgumentException e) {
 			log.info("JWT token compact of handler are invalid.");
 			log.trace("JWT token compact of handler are invalid trace: {0}", e);
+		} catch (Exception e) {
+			log.info("Invalid JWT token.");
+			log.trace("Invalid JWT token trace: {0}", e);
 		}
 		return false;
 	}

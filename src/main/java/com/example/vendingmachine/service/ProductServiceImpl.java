@@ -9,6 +9,7 @@ import com.example.vendingmachine.repository.UserRepository;
 import com.example.vendingmachine.util.CoinAmountUtil;
 import com.example.vendingmachine.util.SecurityUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
 	private final ProductRepository productRepository;
@@ -31,8 +33,10 @@ public class ProductServiceImpl implements ProductService {
 
 		try {
 			product.setSellerId(currentUser.getId());
+			log.info("Creating product {}", product);
 			return productRepository.save(product);
 		} catch (DataIntegrityViolationException e) {
+			log.error("Product duplication {}", e.getMessage());
 			throw new ProductConflictException(product.getProductName());
 		}
 	}
@@ -62,8 +66,10 @@ public class ProductServiceImpl implements ProductService {
 			try {
 				product.setId(productId);
 				product.setSellerId(sellerId);
+				log.info("Update product {}", product);
 				return productRepository.save(product);
 			} catch (DataIntegrityViolationException e) {
+				log.error("Product duplication {}", e.getMessage());
 				throw new ProductConflictException(product.getProductName());
 			}
 		}
@@ -77,6 +83,7 @@ public class ProductServiceImpl implements ProductService {
 		Product productById = getProductById(productId);
 
 		if (isUserProductSeller(productById.getSellerId(), currentUser)) {
+			log.info("Delete product {}", productById);
 			productRepository.delete(productById);
 			return new DeleteResponseDTO();
 		}

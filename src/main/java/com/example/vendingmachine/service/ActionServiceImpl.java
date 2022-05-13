@@ -12,11 +12,13 @@ import com.example.vendingmachine.repository.UserRepository;
 import com.example.vendingmachine.util.CoinAmountUtil;
 import com.example.vendingmachine.util.SecurityUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ActionServiceImpl implements ActionService {
 
 	private final UserRepository userRepository;
@@ -81,6 +83,7 @@ public class ActionServiceImpl implements ActionService {
 
 	private User getUpdateDeposit(Integer depositAmount, User user) {
 		user.setDeposit(getDepositSum(depositAmount, user));
+		log.info("Update user deposit {}", user.getDeposit());
 		User savedDeposit = userRepository.save(user);
 		return savedDeposit;
 	}
@@ -88,12 +91,15 @@ public class ActionServiceImpl implements ActionService {
 	private void updateAmounts(Integer amountOfProducts, User user, Product product) {
 		user.setDeposit(user.getDeposit() - getTotalSpent(amountOfProducts, product));
 		product.setAmountAvailable(product.getAmountAvailable() - amountOfProducts);
+		log.info("Update user deposit change {}", user.getDeposit());
 		userRepository.save(user);
+		log.info("Product amount available update {}", product.getAmountAvailable());
 		productRepository.save(product);
 	}
 
 	private void resetDeposit(int resetPrice, User user) {
 		user.setDeposit(resetPrice);
+		log.info("Deposit reset update {}", user.getDeposit());
 		userRepository.save(user);
 	}
 
